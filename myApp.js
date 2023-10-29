@@ -1,52 +1,39 @@
 let express = require('express');
 let app = express();
 require('dotenv').config()
+let bodyParser = require('body-parser')
 
 
-// console.log("Hello World", __dirname)
+const getUserNameHandler = (req, res) => {
+    let {first: firstName, last: lastName} = req.query
 
-// const middleWareFunc = (req, res, next) => {
-//     let staticAssetPath = __dirname + '/public'
-
-//     // middleware, to serve a static asset
-//     express.static(staticAssetPath)(req, res, next)
-// }
-
-// // mounted a middleware
-// app.use('/public', middleWareFunc)
-
-
-// const cbFunc = (req, res) => {
-//     res.sendFile(__dirname + '/views/index.html')
-// }
-
-// const serveJson = (req, res) => {
-//     let messageStyle = process.env.MESSAGE_STYLE
-//     if(messageStyle === "uppercase"){
-//         res.json({
-//             message: "HELLO JSON"
-//         })
-//     } else {
-//         res.json({
-//             message: "Hello json"
-//         })
-//     }
-// }
-
-
-const cbFunc = () => {
-    console.log("ROUTE HANDLER")
+    res.send({
+        name: `${firstName} ${lastName}`
+    })
 }
 
-const middleWareRouteHandler = (req, res, next) => {
-    console.log(`${req.method} ${req.path} - ${req.ip}`);
-    next()
+const serveFormHandler = (req, res) => {
+    res.sendFile(__dirname + '/views/index.html')
 }
 
-app.use(middleWareRouteHandler)
+const getNameHandler = (req, res) => {
+    console.log(req.body, "REQUEST BODY")
+    let {first: firstName, last: lastName} = req.body
+    res.send({  
+        name: `${firstName} ${lastName}`
+    })
+}
 
-app.get('/', cbFunc)
-// app.get('/json', serveJson)
-// app.get('/middleware', middleWareRouteHandler)
+
+
+const handleBodyData = (req, res, next) => {
+    express.urlencoded({extended: true})(req, res, next)
+}
+app.use(handleBodyData)
+
+app.get('/', serveFormHandler)
+app.post('/name', getNameHandler)
+// app.post('/name', getUserNameHandler)
+
 
 module.exports = app;
