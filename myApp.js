@@ -1,28 +1,45 @@
 let express = require('express');
 let app = express();
+require('dotenv').config()
 
 
-const port = 8000;
+console.log("Hello World", __dirname)
 
-// app.use("/public", express.static(__dirname + "/public"))
-app.use("/public",express.static(__dirname + "/public"))
+const middleWareFunc = (req, res, next) => {
+    let staticAssetPath = __dirname + '/public'
+
+    // middleware, to serve a static asset
+    express.static(staticAssetPath)(req, res, next)
+}
+
+// mounted a middleware
+app.use('/public', middleWareFunc)
 
 
-console.log("Hello World")
-
-const myHandler = (req, res) => {
+const cbFunc = (req, res) => {
     res.sendFile(__dirname + '/views/index.html')
 }
 
-app.get('/', myHandler)
+const serveJson = (req, res) => {
+    let messageStyle = process.env.MESSAGE_STYLE
+    if(messageStyle === "uppercase"){
+        res.json({
+            message: "HELLO JSON"
+        })
+    } else {
+        res.json({
+            message: "Hello json"
+        })
+    }
+}
 
+const middleWareRouteHandler = (req, res, next) => {
+    console.log("i am  a middleware")
+    next()
+}
 
+app.get('/', cbFunc)
+app.get('/json', serveJson)
+app.get('/middleware', middleWareRouteHandler)
 
-app.listen(port, () => {
-    console.log(`App is listening on port ${port}`)
-})
-
-
-
-
- module.exports = app;
+module.exports = app;
